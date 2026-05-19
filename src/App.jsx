@@ -40,10 +40,6 @@ function App() {
         message: message,
       }));
 
-      console.log(JSON.stringify({
-        user: 'postman',
-        message: 'test',
-      }));
       setMessage('');
     } else {
       console.warn("Le WebSocket n'est pas prêt ou est déconnecté.");
