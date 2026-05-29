@@ -1,0 +1,39 @@
+header {
+    max-width: 1000px;
+}
+
+header div{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0 1em 0 1em;
+    background-color: #333;
+}
+
+header h1 {
+    color: #58b368;
+}
+
+nav {
+    display: flex;
+    justify-content: space-around;
+    padding: 1em 0 1em 0;
+}
+
+.btn{
+    font-family: monospace;
+    font-size: 1rem;
+    padding: 0.5em 1em;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    height: 40px;
+    color: #fff;
+    background-color: #333;
+}
+
+.btn-red{
+    background : red;
+}
