@@ -1,12 +1,14 @@
-const ChatItem = ({ channel, currentUser, formatDate, onEnterChat, onDeleteChannel  }) => {
-    const isOwner = channel.owner.id === currentUser.id;
+import { formatDate } from '../../utils/formatDate';
+
+const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel }) => {
+    const isOwner = channel.ownerId === currentUser.id;
 
     return (
         <div className="chat-card">
             <div className="card-header">
                 <h3>{channel.title}</h3>
                 <span className="owner">
-                    {isOwner ? 'Moi' : `${channel.owner.firstname} ${channel.owner.lastname.toUpperCase()}`}
+                    // TODO
                 </span>
             </div>
 
@@ -27,7 +29,7 @@ const ChatItem = ({ channel, currentUser, formatDate, onEnterChat, onDeleteChann
                             <button className="button"
                                     title="Supprimer"
                                     onClick={() => onDeleteChannel(channel.id)}>
-                                    [Supprimer]
+                                [Supprimer]
                             </button>
                         </>
                     )}
@@ -37,4 +39,5 @@ const ChatItem = ({ channel, currentUser, formatDate, onEnterChat, onDeleteChann
         </div>
     );
 };
+
 export default ChatItem;

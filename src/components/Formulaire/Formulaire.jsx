@@ -1,12 +1,13 @@
-// Formulaire/Formulaire.jsx
 import { useState } from "react";
-import "./Formulaire.css"; // Importer le CSS associé
+import "./Formulaire.css";
+import { createChannel } from "../../services/api";
 
 function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [startChannel, setStartChannel] = useState('');
     const [endChannel, setEndChannel] = useState('');
+    const [ownerId, setOwnerId] = useState('');
 
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +17,7 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
         e.preventDefault();
         setError('');
         setSuccess(false);
+        setOwnerId(currentUser.id);
 
         const start = new Date(startChannel);
         const end = new Date(endChannel);
@@ -29,36 +31,24 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
 
         try {
             const channel = {
-                title: title,
-                description: description,
-                startChannel: startChannel,
-                endChannel: endChannel,
-                owner: {
-                    id: currentUser.id
-                }
+                title,
+                description,
+                startChannel,
+                endChannel,
+                ownerId,
             };
-
-            const response = await fetch('http://localhost:8080/api/channel', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(channel),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Impossible de créer la discussion.");
-            }
-
+            await createChannel(channel);
             setSuccess(true);
 
             if (onChannelCreated) {
                 onChannelCreated();
             }
+
+            setTimeout(() => {
+                setCurrentPage('home');
+            }, 1500);
         } catch (err) {
-            setError(err.message || "Une erreur est survenue lors de la connexion à l'API.");
+            setError(err.message);
         } finally {
             setIsLoading(false);
         }
@@ -73,14 +63,12 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
 
                 <div className="form-body">
                     {error && (
-                        <div className="error-box">
-                            ! ERREUR : {error}
-                        </div>
+                        <div className="error-box">ERREUR : {error}</div>
                     )}
 
                     {success && (
                         <div className="success-box">
-                            * Salon créé avec succès ! Redirection...
+                            Redirection...
                         </div>
                     )}
 

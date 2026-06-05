@@ -4,56 +4,24 @@ import './Chat.css';
 const Chat = ({ channel, currentUser, onLeave }) => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-
-    const [connectedUsers, setConnectedUsers] = useState([
-        currentUser,
-        { id: 2, firstname: "Alice", lastname: "Bob" },
-        { id: 3, firstname: "Alice", lastname: "Bob" },
-        { id: 4, firstname: "Alice", lastname: "Bob" }
-    ]);
-
+    const wsRef = useRef(null);
     const chatEndRef = useRef(null);
 
-    const handleNewMessage = (e) => {
-        e.preventDefault();
-        if (newMessage.trim() === "") return;
-
-        const messageData = {
-            id: Date.now(),
-            user: currentUser,
-            text: newMessage,
-            time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-        };
-
-        setMessages((prev) => [...prev, messageData]);
-        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({
-                user: currentUser,
-                message: newMessage,
-            }));
-        } else {
-            console.warn("Le WebSocket n'est pas prêt ou est déconnecté.");
-        }
-        setNewMessage("");
-    };
-
     useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
-
-    //  Utilisation de useRef à la place de useState pour le WebSocket
-    const wsRef = useRef(null);
-
-    useEffect(() => {
-        const websocket = new WebSocket('ws://localhost:8080/salon');
+        const wsurl = `ws://localhost:8080/salon?id=${channel.id}`;
+        const websocket = new WebSocket(wsurl);
 
         websocket.onopen = () => {
-            console.log('WebSocket is connected');
+            console.log('WebSocket is connected: ' + channel.id);
         };
 
         websocket.onmessage = (evt) => {
-            const message = evt.data;
-            setMessages((prevMessages) => [...prevMessages, message]);
+            try {
+                const message = JSON.parse(evt.data);
+                setMessages((prev) => [...prev, message]);
+            } catch (err) {
+                console.warn(err);
+            }
         };
 
         websocket.onclose = () => {
@@ -66,25 +34,25 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         return () => {
             websocket.close();
         };
-    }, []);
+    }, [channel.id]);
 
-    const sendMessage = () => {
-        // On accède au WebSocket via wsRef.current
+    const handleNewMessage = (e) => {
+        e.preventDefault();
+        if (!newMessage.trim()) return;
+
+        const messageData = {
+            user: currentUser,
+            message: newMessage,
+        };
+
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({
-                user: currentUser,
-                message: newMessage,
-            }));
-
+            wsRef.current.send(JSON.stringify(messageData));
             setNewMessage("");
         } else {
             console.warn("Le WebSocket n'est pas prêt ou est déconnecté.");
         }
     };
 
-    const handleInputChange = (event) => {
-        setNewMessage(event.target.value);
-    };
 
     return (
         <div className="chat-container">
@@ -101,14 +69,13 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                     <div className="chat-messages-area">
                         {messages.length === 0 ? (
                             <div className="chat-empty-state">
+                                aucun message
                             </div>
                         ) : (
-                            messages.map((msg) => (
-                                <div key={1} className="chat-message">
-                                    <span>
-                                        &lt;{msg.user}&gt;
-                                    </span>
-                                    <span className="msg-text">{msg.message}</span>
+                            messages.map((msg, index) => (
+                                <div key={index} className="message-item">
+                                    <strong>{msg.user} : </strong>
+                                    <span>{msg.message}</span>
                                 </div>
                             ))
                         )}
@@ -120,27 +87,14 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                         <input
                             type="text"
                             value={newMessage}
-                            onChange={handleInputChange}
+                            onChange={(e) => setNewMessage(e.target.value)}
                             placeholder="Écrivez votre message..."
                             autoFocus
                         />
-                        <button type="submit" className="button btn-send" disabled={!newMessage.trim()} onClick={sendMessage}>
+                        <button type="submit" className="button btn-send" disabled={!newMessage.trim()}>
                             Envoyer
                         </button>
                     </form>
-                </div>
-
-                <div className="chat-sidebar">
-                    <div className="sidebar-header">
-                        Connectés ({connectedUsers.length})
-                    </div>
-                    <ul className="users-list">
-                        {connectedUsers.map((user) => (
-                            <li key={user.id} className={user.id === currentUser.id ? "user-me" : ""}>
-                                {user.firstname} {user.lastname && user.lastname.toUpperCase()}
-                            </li>
-                        ))}
-                    </ul>
                 </div>
             </div>
         </div>

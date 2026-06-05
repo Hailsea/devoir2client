@@ -1,6 +1,6 @@
 import ChatItem from './ChatItem';
 
-const ChatTable = ({ filteredChannels, currentUser, formatDate, onEnterChat, onDeleteChannel }) => {
+const ChatTable = ({ filteredChannels, currentUser, onEnterChat, onDeleteChannel }) => {
     return (
         <>
         <div className="cards-grid">
@@ -9,7 +9,6 @@ const ChatTable = ({ filteredChannels, currentUser, formatDate, onEnterChat, onD
                     key={channel.id}
                     channel={channel}
                     currentUser={currentUser}
-                    formatDate={formatDate}
                     onEnterChat={onEnterChat}
                     onDeleteChannel={onDeleteChannel}
                 />

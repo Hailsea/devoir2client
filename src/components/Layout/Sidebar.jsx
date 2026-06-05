@@ -1,7 +1,8 @@
-import './Sidebar.css';
+import './Layout.css';
 
 function Sidebar({ user }) {
     if (!user) return null;
+    const role = user.admin ? '[ ADMIN ]' : '[ USER ]';
 
     return (
         <aside>
@@ -20,13 +21,7 @@ function Sidebar({ user }) {
 
                 <div className="info">
                     <label>Rôle</label>
-                    <div className="info-value">
-                        {user.isAdmin ? (
-                            <span>[ ADMIN ]</span>
-                        ) : (
-                            <span>[ USER ]</span>
-                        )}
-                    </div>
+                    <div className="info-value">{role}</div>
                 </div>
             </div>
         </aside>

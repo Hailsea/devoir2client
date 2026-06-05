@@ -1,40 +1,23 @@
 function Navbar({ currentPage, setCurrentPage }) {
+    const navButton = [
+        { id: 'home', label: 'Accueil' },
+        { id: 'planifier', label: 'Planifier' },
+        { id: 'chats', label: 'Mes Chats' },
+        { id: 'invitations', label: 'Invitations' },
+        { id: 'demandes', label: 'Demandes' }
+    ];
+
     return (
-        <nav className="app-navbar">
-            <button
-                className={`btn ${currentPage === 'home' ? 'active' : ''}`}
-                onClick={() => setCurrentPage('home')}
-            >
-                [ Accueil ]
-            </button>
-
-            <button
-                className={`btn ${currentPage === 'planifier' ? 'active' : ''}`}
-                onClick={() => setCurrentPage('planifier')}
-            >
-                [ Planifier ]
-            </button>
-
-            <button
-                className={`btn ${currentPage === 'mes-chats' ? 'active' : ''}`}
-                onClick={() => setCurrentPage('mes-chats')}
-            >
-                [ Mes Chats ]
-            </button>
-
-            <button
-                className={`btn ${currentPage === 'invitations' ? 'active' : ''}`}
-                onClick={() => setCurrentPage('invitations')}
-            >
-                [ Invitations ]
-            </button>
-
-            <button
-                className={`btn ${currentPage === 'demandes' ? 'active' : ''}`}
-                onClick={() => setCurrentPage('demandes')}
-            >
-                [ Demandes ]
-            </button>
+        <nav>
+            {navButton.map((item) => (
+                <button
+                    key={item.id}
+                    className={`btn ${currentPage === item.id ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(item.id)}
+                >
+                    [ {item.label} ]
+                </button>
+            ))}
         </nav>
     );
 }

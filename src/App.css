@@ -1,0 +1,13 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.main {
+  width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  gap: 20px;
+  flex: 1;
+}

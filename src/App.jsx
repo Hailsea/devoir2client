@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
-import Header from '../Layout/Header';
-import Sidebar from '../Sidebar/Sidebar';
-import Dashboard from '../Dashboard/Dashboard';
-import Login from '../Login/Login';
-import Footer from '../Layout/Footer';
-import Formulaire from '../Formulaire/Formulaire';
+import Header from './components/Layout/Header.jsx';
+import Sidebar from './components/Layout/Sidebar.jsx';
+import Dashboard from './components/Dashboard/Dashboard.jsx';
+import Login from './components/Login/Login.jsx';
+import Footer from './components/Layout/Footer.jsx';
+import Formulaire from './components/Formulaire/Formulaire.jsx';
 import './App.css';
-import Chat from "../Chat/Chat";
+import Chat from "./components/Chat/Chat.jsx";
+import {deleteChannel, getUserChannels} from "./services/api.js";
 
 function App() {
 
     const [currentPage, setCurrentPage] = useState('home');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [user, setUser] = useState();
+    const [user, setUser] = useState(null);
     const [activeChat, setActiveChat] = useState(null);
     const [channels, setChannels] = useState([]);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -26,82 +27,50 @@ function App() {
     const handleLogout = () => {
         setUser(null)
         setIsAuthenticated(false);
-        setCurrentPage('login');
-    };
-
-    const handleEnterChat = (channel) => {
-        setActiveChat(channel);
-    };
-
-    const handleLeaveChat = () => {
+        setChannels([]);
         setActiveChat(null);
-    };
-
-    const handleChannelCreated = () => {
-        setRefreshTrigger(prev => prev + 1);
+        setCurrentPage('login');
     };
 
     const handleDeleteChannel = async (idChannel) => {
        try {
-            const response = await fetch(`http://localhost:8080/api/channel?id=${idChannel}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                throw new Error("");
-            }
-
-            console.log("Salon supprimé avec succès !");
-
-            setRefreshTrigger(prev => prev + 1);
-
+           await deleteChannel(idChannel);
+           setChannels(prev => prev.filter(c => c.id !== idChannel));
+           if (activeChat?.id === idChannel) {
+               setActiveChat(null);
+           }
         } catch (err) {
-            alert(err.message || "Une erreur est survenue lors de la suppression.");
+            alert(err.message);
         }
-    };
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('fr-FR', {
-            day: '2-digit', month: '2-digit', year: 'numeric',
-            hour: '2-digit', minute: '2-digit'
-        }).replace(',', '');
     };
 
     const getChannels = (viewType) => {
+        if (!user) return [];
+
         if (viewType === 'owner') {
-            return channels.filter(channel => channel.owner.id === user.id);
+            return channels.filter(channel => channel.ownerId === user.id);
         }
         if (viewType === 'guest') {
-            return channels.filter(channel => channel.owner.id !== user.id);
+            return channels.filter(channel => channel.ownerId !== user.id);
         }
+
         return channels;
     };
 
     useEffect(() => {
-        if (isAuthenticated && user?.id) {
-            const fetchChannels = async () => {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/user/channel?idUser=${user.id}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-                    const data = await response.json();
-                    if (!response.ok) {
-                        throw new Error(data.error || 'Impossible de charger vos salons');
-                    }
-                    console.log(data);
-                    setChannels(data);
-                } catch (err) {
-                    console.error("Erreur lors de la récupération des salons :", err.message);
-                }
-            };
-            fetchChannels();
-        } else {
-            setChannels([]);
+        if (!isAuthenticated || !user?.id) {
+            return;
         }
+
+        const fetchChannels = async () => {
+            try {
+                const data = await getUserChannels(user.id, 0, 4); //TODO pagination
+                setChannels(data);
+            } catch (err) {
+                console.error(err.message);
+            }
+        };
+        void fetchChannels();
     }, [isAuthenticated, user, refreshTrigger]);
 
     if (!isAuthenticated || currentPage === 'login') {
@@ -109,17 +78,19 @@ function App() {
     }
 
     return (
-        <div className="app-container">
-            <Header onLogout={handleLogout} userName={user.firstname} currentPage={currentPage}
+        <div className="app">
+            <Header onLogout={handleLogout}
+                    userName={user.firstname}
+                    currentPage={currentPage}
                     setCurrentPage={setCurrentPage} />
-            <div className="main-layout">
+            <div className="main">
                 <Sidebar user={user} />
                 <main>
                     {activeChat ? (
                         <Chat
                             channel={activeChat}
                             currentUser={user}
-                            onLeave={handleLeaveChat}
+                            onLeave={() => setActiveChat(null)}
                         /> ) : (
                         <>
                         {currentPage === 'home' && (
@@ -127,18 +98,16 @@ function App() {
                                 filteredChannels={getChannels('all')}
                                 currentUser={user}
                                 viewType="all"
-                                formatDate={formatDate}
-                                onEnterChat={handleEnterChat}
+                                onEnterChat={setActiveChat}
                                 onDeleteChannel={handleDeleteChannel}
                             />
                         )}
-                        {currentPage === 'mes-chats' && (
+                        {currentPage === 'chats' && (
                             <Dashboard
                                 filteredChannels={getChannels('owner')}
                                 currentUser={user}
                                 viewType="owner"
-                                formatDate={formatDate}
-                                onEnterChat={handleEnterChat}
+                                onEnterChat={setActiveChat}
                                 onDeleteChannel={handleDeleteChannel}
                             />
                         )}
@@ -147,8 +116,7 @@ function App() {
                                 filteredChannels={getChannels('guest')}
                                 currentUser={user}
                                 viewType="guest"
-                                formatDate={formatDate}
-                                onEnterChat={handleEnterChat}
+                                onEnterChat={setActiveChat}
                             />
                         )}
                         {currentPage === 'demandes' && (
@@ -160,7 +128,7 @@ function App() {
                             <Formulaire
                                 currentUser={user}
                                 setCurrentPage={setCurrentPage}
-                                onChannelCreated={handleChannelCreated}
+                                onChannelCreated={() => setRefreshTrigger(prev => prev + 1)}
                             />
                         )}
                         </>

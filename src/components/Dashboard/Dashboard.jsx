@@ -2,7 +2,7 @@
 import ChatTable from './ChatTable';
 import './Dashboard.css';
 
-const Dashboard = ({ filteredChannels, currentUser, formatDate, onEnterChat, onDeleteChannel }) => {
+const Dashboard = ({ filteredChannels, currentUser, onEnterChat, onDeleteChannel }) => {
     return (
         <>
         {filteredChannels.length === 0 ? (
@@ -11,7 +11,6 @@ const Dashboard = ({ filteredChannels, currentUser, formatDate, onEnterChat, onD
             <ChatTable
                 filteredChannels={filteredChannels}
                 currentUser={currentUser}
-                formatDate={formatDate}
                 onEnterChat={onEnterChat}
                 onDeleteChannel={onDeleteChannel}
             />
