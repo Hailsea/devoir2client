@@ -27,6 +27,7 @@ export const getUserChannels = async (userId, start, end, state = "all") => {
 };
 
 export const createChannel = async (channelData) => {
+    console.log(channelData);
     const response = await fetch(`${URL}/channels`, {
         method: 'POST',
         headers: {
@@ -51,7 +52,7 @@ export const updateChannel = async (idChannel, channelData) => {
     });
 
     if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour du canal");
+        throw new Error("Error during update channel");
     }
     return await response.json();
 };
@@ -62,7 +63,7 @@ export const deleteChannel = async (idChannel) => {
     });
 
     if (!response.ok) {
-        throw new Error("Erreur serveur lors de la suppression du canal");
+        throw new Error("Error during delete channels");
     }
     return true;
 };
@@ -76,7 +77,7 @@ export const getInvitations = async (idUserTarget, start, end) => {
     });
 
     if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des invitations");
+        throw new Error("Error during get invitations");
     }
     return await response.json();
 };
@@ -88,7 +89,7 @@ export const getInvitation = async (idUser, idUserTarget, idChannel) => {
     });
 
     if (!response.ok) {
-        throw new Error("Invitation introuvable");
+        throw new Error("Invitation unfind");
     }
     return await response.json();
 };
@@ -103,7 +104,7 @@ export const createInvitation = async (invitationData) => {
     });
 
     if (!response.ok) {
-        throw new Error("Erreur lors de la création de l'invitation");
+        throw new Error("Error during create invitation");
     }
     return await response.json();
 };
@@ -118,7 +119,7 @@ export const updateInvitation = async (idUser, idUserTarget, idChannel, invitati
     });
 
     if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour de l'invitation");
+        throw new Error("Error during update invitation");
     }
     return await response.json();
 };
@@ -129,8 +130,7 @@ export const deleteInvitation = async (idUser, idUserTarget, idChannel) => {
     });
 
     if (!response.ok) {
-        throw new Error("Erreur lors de la suppression de l'invitation");
+        throw new Error("Error during delete invitation");
     }
-    // Pas de parsing JSON pour un code 204 No Content
     return true;
 };
