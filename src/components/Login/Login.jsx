@@ -24,46 +24,55 @@ function Login({onLogin}) {
     };
 
     return (
-        <>
-        {error && (
-            <div>
-                ERREUR : {error}
-            </div>
-        )}
+        <div className="login-wrapper">
+            <div className="login-window">
+                <div className="login-header">
+                    <h2>[ Connexion_SR03 ]</h2>
+                </div>
 
-        <form onSubmit={handleSubmit}>
-            <div>
-                <label>&gt; Email</label>
-                <input
-                    type="email"
-                    placeholder="jean@jean.com"
-                    name="email"
-                    id="email"
-                    value={email}
-                    required
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-            </div>
+                <div className="login-body">
+                    {error && (
+                        <div className="login-error">ERREUR : {error}</div>
+                    )}
 
-            <div>
-                <label>&gt; Mot de passe</label>
-                <input
-                    type="password"
-                    placeholder="********"
-                    name="password"
-                    id="password"
-                    value={password}
-                    required
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-            </div>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label>&gt; Email</label>
+                            <input
+                                type="email"
+                                placeholder="jean@jean.com"
+                                name="email"
+                                id="email"
+                                value={email}
+                                required
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
 
-            <button type="submit" disabled={isLoading}>{isLoading ? '[ Connexion... ]' : '[ Se connecter ]'}</button>
-            <div>
-                <a href="/resetPassword">Mot de passe oublié</a>
+                        <div className="form-group">
+                            <label>&gt; Mot de passe</label>
+                            <input
+                                type="password"
+                                placeholder="********"
+                                name="password"
+                                id="password"
+                                value={password}
+                                required
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+
+                        <button type="submit" className="btn-login" disabled={isLoading}>
+                            {isLoading ? '[ Connexion... ]' : '[ Se connecter ]'}
+                        </button>
+
+                        <div className="login-footer">
+                            <a href="/resetPassword" className="forgot-link">Mot de passe oublié</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
-        </>
+        </div>
     );
 }
 

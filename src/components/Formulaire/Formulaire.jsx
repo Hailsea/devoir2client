@@ -1,13 +1,16 @@
 import { useState } from "react";
 import "./Formulaire.css";
-import { createChannel } from "../../services/api";
+import { createChannel, updateChannel } from "../../services/api";
 
-function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [startChannel, setStartChannel] = useState('');
-    const [endChannel, setEndChannel] = useState('');
-    const [ownerId, setOwnerId] = useState('');
+const toInputDateTime = (value) => (value ? value.slice(0, 16) : '');
+
+function Formulaire({ currentUser, setCurrentPage, onChannelCreated, channelToEdit }) {
+    const isEdit = Boolean(channelToEdit);
+
+    const [title, setTitle] = useState(channelToEdit?.title || '');
+    const [description, setDescription] = useState(channelToEdit?.description || '');
+    const [startChannel, setStartChannel] = useState(toInputDateTime(channelToEdit?.startChannel));
+    const [endChannel, setEndChannel] = useState(toInputDateTime(channelToEdit?.endChannel));
 
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +20,6 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
         e.preventDefault();
         setError('');
         setSuccess(false);
-        setOwnerId(currentUser.id);
 
         const start = new Date(startChannel);
         const end = new Date(endChannel);
@@ -35,9 +37,14 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
                 description,
                 startChannel,
                 endChannel,
-                ownerId,
+                ownerId: currentUser.id,
             };
-            await createChannel(channel);
+
+            if (isEdit) {
+                await updateChannel(channelToEdit.id, channel);
+            } else {
+                await createChannel(channel);
+            }
             setSuccess(true);
 
             if (onChannelCreated) {
@@ -58,7 +65,7 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
         <div className="form-wrapper">
             <div className="form-window">
                 <div className="form-header">
-                    <h2>[ Planifier_discussion_SR03 ]</h2>
+                    <h2>{isEdit ? '[ Modifier_le_salon ]' : '[ Planifier_discussion_SR03 ]'}</h2>
                 </div>
 
                 <div className="form-body">
@@ -68,7 +75,7 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
 
                     {success && (
                         <div className="success-box">
-                            Redirection...
+                            {isEdit ? 'Salon modifié ! Redirection...' : 'Redirection...'}
                         </div>
                     )}
 
@@ -123,7 +130,9 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated }) {
 
                         <div className="form-actions">
                             <button type="submit" className="btn-submit" disabled={isLoading}>
-                                {isLoading ? '[ Enregistrement... ]' : '[ Créer le salon ]'}
+                                {isLoading
+                                    ? '[ Enregistrement... ]'
+                                    : (isEdit ? '[ Enregistrer ]' : '[ Créer le salon ]')}
                             </button>
                             <button
                                 type="button"

@@ -1,6 +1,6 @@
 import { formatDate } from '../../utils/formatDate';
 
-const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel }) => {
+const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel, onInvite, onEdit, onLeave }) => {
     const isOwner = channel.ownerId === currentUser.id;
 
     return (
@@ -8,7 +8,7 @@ const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel }) => {
             <div className="card-header">
                 <h3>{channel.title}</h3>
                 <span className="owner">
-                    // TODO
+                    {isOwner ? '[ Propriétaire ]' : '[ Invité ]'}
                 </span>
             </div>
 
@@ -25,13 +25,33 @@ const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel }) => {
                 <div className="button-group">
                     {isOwner && (
                         <>
-                            <button className="button" title="Modifier le salon">[Modifier]</button>
+                            {onEdit && (
+                                <button className="button"
+                                        title="Modifier le salon"
+                                        onClick={() => onEdit(channel)}>
+                                    [Modifier]
+                                </button>
+                            )}
+                            {onInvite && (
+                                <button className="button"
+                                        title="Inviter un utilisateur"
+                                        onClick={() => onInvite(channel)}>
+                                    [Inviter]
+                                </button>
+                            )}
                             <button className="button"
                                     title="Supprimer"
                                     onClick={() => onDeleteChannel(channel.id)}>
                                 [Supprimer]
                             </button>
                         </>
+                    )}
+                    {!isOwner && onLeave && (
+                        <button className="button btn-refuse"
+                                title="Quitter le salon"
+                                onClick={() => onLeave(channel.id)}>
+                            [Quitter]
+                        </button>
                     )}
                     <button className="button" title="Rejoindre le chat" onClick={() => onEnterChat(channel)}>[Entrer]</button>
                 </div>

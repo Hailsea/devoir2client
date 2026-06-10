@@ -1,5 +1,7 @@
 header {
-    max-width: 1000px;
+    width: 1000px;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 header div{
@@ -36,6 +38,10 @@ nav {
 
 .btn-red{
     background : red;
+}
+
+.btn:not(.active):hover {
+    background-color: #555;
 }
 
 .active {
@@ -82,5 +88,19 @@ aside {
 .email {
     font-size: 12px;
     word-break: break-all;
+}
+
+footer {
+    width: 1000px;
+    max-width: 100%;
+    margin: 10px auto 0 auto;
+    padding: 12px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9rem;
 }
 

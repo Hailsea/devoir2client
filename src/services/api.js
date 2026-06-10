@@ -1,4 +1,13 @@
-const URL = 'http://localhost:8080/api/v1'
+const URL = import.meta.env.VITE_API_URL
+
+const extractError = async (response, fallback) => {
+    try {
+        const data = await response.json();
+        return data && data.message ? data.message : fallback;
+    } catch {
+        return fallback;
+    }
+};
 
 // AUTH
 
@@ -10,16 +19,23 @@ export const login = async (email, password) => {
         },
         body: JSON.stringify({ email, password }),
     });
+
+    if (!response.ok) {
+        throw new Error("Email ou mot de passe incorrect");
+    }
     return await response.json();
 };
 
 // CHANNEL
-export const getUserChannels = async (userId, start, end, state = "all") => {
-    const response = await fetch(`${URL}/channels/user/${userId}/${start}/${end}?state=${state}`, {
+export const getUserChannels = async (userId, page, size, state = "all") => {
+    const response = await fetch(`${URL}/channels?userId=${userId}&state=${state}&page=${page}&size=${size}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
     });
 
+    if (response.status === 404) {
+        return { content: [], page: 0, totalPages: 0, totalElements: 0 };
+    }
     if (!response.ok) {
         throw new Error("Error fetching user channels");
     }
@@ -27,7 +43,6 @@ export const getUserChannels = async (userId, start, end, state = "all") => {
 };
 
 export const createChannel = async (channelData) => {
-    console.log(channelData);
     const response = await fetch(`${URL}/channels`, {
         method: 'POST',
         headers: {
@@ -37,7 +52,7 @@ export const createChannel = async (channelData) => {
     });
 
     if (!response.ok) {
-        throw new Error("Error during create channel");
+        throw new Error(await extractError(response, "Erreur lors de la création du salon"));
     }
     return await response.json();
 };
@@ -52,7 +67,7 @@ export const updateChannel = async (idChannel, channelData) => {
     });
 
     if (!response.ok) {
-        throw new Error("Error during update channel");
+        throw new Error(await extractError(response, "Erreur lors de la modification du salon"));
     }
     return await response.json();
 };
@@ -68,16 +83,75 @@ export const deleteChannel = async (idChannel) => {
     return true;
 };
 
-// INVITATION
+export const leaveChannel = async (channelId, userId) => {
+    const response = await fetch(`${URL}/channels/${channelId}/members/${userId}`, {
+        method: 'DELETE',
+    });
 
-export const getInvitations = async (idUserTarget, start, end) => {
-    const response = await fetch(`${URL}/invitations/userTarget/${idUserTarget}/${start}/${end}`, {
+    if (!response.ok) {
+        throw new Error(await extractError(response, "Erreur en quittant le salon"));
+    }
+    return true;
+};
+
+// USER
+
+export const getUsers = async (excludeId) => {
+    const query = excludeId != null ? `?exclude=${excludeId}` : '';
+    const response = await fetch(`${URL}/users${query}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
     });
 
+    if (response.status === 404) {
+        return [];
+    }
+    if (!response.ok) {
+        throw new Error("Error fetching users");
+    }
+    return await response.json();
+};
+
+// INVITATION
+
+export const getInvitations = async (idUserTarget, page, size) => {
+    const response = await fetch(`${URL}/invitations?userTarget=${idUserTarget}&page=${page}&size=${size}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.status === 404) {
+        return { content: [], page: 0, totalPages: 0, totalElements: 0 };
+    }
     if (!response.ok) {
         throw new Error("Error during get invitations");
+    }
+    return await response.json();
+};
+
+export const getSentInvitations = async (ownerId, page, size) => {
+    const response = await fetch(`${URL}/invitations/sent?owner=${ownerId}&page=${page}&size=${size}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.status === 404) {
+        return { content: [], page: 0, totalPages: 0, totalElements: 0 };
+    }
+    if (!response.ok) {
+        throw new Error("Error during get sent invitations");
+    }
+    return await response.json();
+};
+
+export const refuseInvitation = async (idUser, idUserTarget, idChannel) => {
+    const response = await fetch(`${URL}/invitations/${idUser}/${idUserTarget}/${idChannel}/refuse`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        throw new Error("Error during refuse invitation");
     }
     return await response.json();
 };
@@ -120,6 +194,18 @@ export const updateInvitation = async (idUser, idUserTarget, idChannel, invitati
 
     if (!response.ok) {
         throw new Error("Error during update invitation");
+    }
+    return await response.json();
+};
+
+export const acceptInvitation = async (idUser, idUserTarget, idChannel) => {
+    const response = await fetch(`${URL}/invitations/${idUser}/${idUserTarget}/${idChannel}/accept`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        throw new Error("Error during accept invitation");
     }
     return await response.json();
 };

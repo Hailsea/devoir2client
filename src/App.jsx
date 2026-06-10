@@ -5,9 +5,20 @@ import Dashboard from './components/Dashboard/Dashboard.jsx';
 import Login from './components/Login/Login.jsx';
 import Footer from './components/Layout/Footer.jsx';
 import Formulaire from './components/Formulaire/Formulaire.jsx';
+import Demandes from './components/Invitations/Demandes.jsx';
+import SentInvitations from './components/Invitations/SentInvitations.jsx';
+import InviteModal from './components/Invitations/InviteModal.jsx';
 import './App.css';
 import Chat from "./components/Chat/Chat.jsx";
-import {deleteChannel, getUserChannels} from "./services/api.js";
+import { deleteChannel, getUserChannels, leaveChannel } from "./services/api.js";
+
+const PAGE_STATE = {
+    home: 'all',
+    chats: 'owner',
+    invitations: 'usertarget',
+};
+
+const PAGE_SIZE = 4;
 
 function App() {
 
@@ -17,10 +28,26 @@ function App() {
     const [activeChat, setActiveChat] = useState(null);
     const [channels, setChannels] = useState([]);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [inviteChannel, setInviteChannel] = useState(null);
+    const [editingChannel, setEditingChannel] = useState(null);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
+    const handleNavigate = (target) => {
+        setPage(0);
+        setEditingChannel(null);
+        setCurrentPage(target);
+    };
+
+    const handleEditChannel = (channel) => {
+        setEditingChannel(channel);
+        setCurrentPage('planifier');
+    };
 
     const handleLogin = (data) => {
         setUser(data);
         setIsAuthenticated(true);
+        setPage(0);
         setCurrentPage('home');
     };
 
@@ -29,6 +56,7 @@ function App() {
         setIsAuthenticated(false);
         setChannels([]);
         setActiveChat(null);
+        setPage(0);
         setCurrentPage('login');
     };
 
@@ -39,22 +67,23 @@ function App() {
            if (activeChat?.id === idChannel) {
                setActiveChat(null);
            }
+           setRefreshTrigger(prev => prev + 1);
         } catch (err) {
             alert(err.message);
         }
     };
 
-    const getChannels = (viewType) => {
-        if (!user) return [];
-
-        if (viewType === 'owner') {
-            return channels.filter(channel => channel.ownerId === user.id);
+    const handleLeaveChannel = async (idChannel) => {
+        try {
+            await leaveChannel(idChannel, user.id);
+            setChannels(prev => prev.filter(c => c.id !== idChannel));
+            if (activeChat?.id === idChannel) {
+                setActiveChat(null);
+            }
+            setRefreshTrigger(prev => prev + 1);
+        } catch (err) {
+            alert(err.message);
         }
-        if (viewType === 'guest') {
-            return channels.filter(channel => channel.ownerId !== user.id);
-        }
-
-        return channels;
     };
 
     useEffect(() => {
@@ -62,16 +91,28 @@ function App() {
             return;
         }
 
+        const state = PAGE_STATE[currentPage];
+        if (!state) {
+            return;
+        }
+
         const fetchChannels = async () => {
             try {
-                const data = await getUserChannels(user.id, 0, 4); //TODO pagination
-                setChannels(data);
+                const data = await getUserChannels(user.id, page, PAGE_SIZE, state);
+                setChannels(data.content);
+                setTotalPages(data.totalPages);
+
+                if (data.totalPages > 0 && page > data.totalPages - 1) {
+                    setPage(data.totalPages - 1);
+                }
             } catch (err) {
                 console.error(err.message);
+                setChannels([]);
+                setTotalPages(0);
             }
         };
         void fetchChannels();
-    }, [isAuthenticated, user, refreshTrigger]);
+    }, [isAuthenticated, user, currentPage, page, refreshTrigger]);
 
     if (!isAuthenticated || currentPage === 'login') {
         return <Login onLogin={handleLogin} />;
@@ -82,7 +123,7 @@ function App() {
             <Header onLogout={handleLogout}
                     userName={user.firstname}
                     currentPage={currentPage}
-                    setCurrentPage={setCurrentPage} />
+                    setCurrentPage={handleNavigate} />
             <div className="main">
                 <Sidebar user={user} />
                 <main>
@@ -95,39 +136,60 @@ function App() {
                         <>
                         {currentPage === 'home' && (
                             <Dashboard
-                                filteredChannels={getChannels('all')}
+                                filteredChannels={channels}
                                 currentUser={user}
                                 viewType="all"
                                 onEnterChat={setActiveChat}
                                 onDeleteChannel={handleDeleteChannel}
+                                onInvite={setInviteChannel}
+                                onEdit={handleEditChannel}
+                                onLeave={handleLeaveChannel}
+                                page={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
                             />
                         )}
                         {currentPage === 'chats' && (
                             <Dashboard
-                                filteredChannels={getChannels('owner')}
+                                filteredChannels={channels}
                                 currentUser={user}
                                 viewType="owner"
                                 onEnterChat={setActiveChat}
                                 onDeleteChannel={handleDeleteChannel}
+                                onInvite={setInviteChannel}
+                                onEdit={handleEditChannel}
+                                page={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
                             />
                         )}
                         {currentPage === 'invitations' && (
                             <Dashboard
-                                filteredChannels={getChannels('guest')}
+                                filteredChannels={channels}
                                 currentUser={user}
                                 viewType="guest"
                                 onEnterChat={setActiveChat}
+                                onLeave={handleLeaveChannel}
+                                page={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
                             />
                         )}
                         {currentPage === 'demandes' && (
-                            <div>
-                                TODO
-                            </div>
+                            <Demandes
+                                currentUser={user}
+                                onInvitationAccepted={() => setRefreshTrigger(prev => prev + 1)}
+                            />
+                        )}
+                        {currentPage === 'envoyees' && (
+                            <SentInvitations currentUser={user} />
                         )}
                         {currentPage === 'planifier' && (
                             <Formulaire
+                                key={editingChannel ? editingChannel.id : 'new'}
                                 currentUser={user}
-                                setCurrentPage={setCurrentPage}
+                                setCurrentPage={handleNavigate}
+                                channelToEdit={editingChannel}
                                 onChannelCreated={() => setRefreshTrigger(prev => prev + 1)}
                             />
                         )}
@@ -136,6 +198,14 @@ function App() {
                 </main>
             </div>
             <Footer />
+
+            {inviteChannel && (
+                <InviteModal
+                    channel={inviteChannel}
+                    currentUser={user}
+                    onClose={() => setInviteChannel(null)}
+                />
+            )}
         </div>
     );
 }

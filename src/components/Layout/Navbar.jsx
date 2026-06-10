@@ -4,7 +4,8 @@ function Navbar({ currentPage, setCurrentPage }) {
         { id: 'planifier', label: 'Planifier' },
         { id: 'chats', label: 'Mes Chats' },
         { id: 'invitations', label: 'Invitations' },
-        { id: 'demandes', label: 'Demandes' }
+        { id: 'demandes', label: 'Demandes' },
+        { id: 'envoyees', label: 'Mes envois' }
     ];
 
     return (

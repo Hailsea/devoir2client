@@ -8,7 +8,8 @@ const Chat = ({ channel, currentUser, onLeave }) => {
     const chatEndRef = useRef(null);
 
     useEffect(() => {
-        const wsurl = `ws://localhost:8080/salon?id=${channel.id}`;
+        const baseWsUrl = import.meta.env.VITE_WS_URL;
+        const wsurl = `${baseWsUrl}/salon?id=${channel.id}`;
         const websocket = new WebSocket(wsurl);
 
         websocket.onopen = () => {
@@ -16,12 +17,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         };
 
         websocket.onmessage = (evt) => {
-            try {
-                const message = JSON.parse(evt.data);
-                setMessages((prev) => [...prev, message]);
-            } catch (err) {
-                console.warn(err);
-            }
+            setMessages((prev) => [...prev, evt.data]);
         };
 
         websocket.onclose = () => {
@@ -36,12 +32,16 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         };
     }, [channel.id]);
 
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
     const handleNewMessage = (e) => {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
         const messageData = {
-            user: currentUser,
+            user: `${currentUser.firstname} ${currentUser.lastname}`,
             message: newMessage,
         };
 
@@ -61,7 +61,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                     <h2>[ Salon : {channel.title} ]</h2>
                     <span className="chat-desc">{channel.description}</span>
                 </div>
-                <button className="button btn-leave" onClick={onLeave}>Quitter le chat</button>
+                <button className="btn-leave" onClick={onLeave}>Quitter le chat</button>
             </div>
 
             <div className="chat-layout">
@@ -74,8 +74,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                         ) : (
                             messages.map((msg, index) => (
                                 <div key={index} className="message-item">
-                                    <strong>{msg.user} : </strong>
-                                    <span>{msg.message}</span>
+                                    <span>{msg}</span>
                                 </div>
                             ))
                         )}
@@ -91,7 +90,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                             placeholder="Écrivez votre message..."
                             autoFocus
                         />
-                        <button type="submit" className="button btn-send" disabled={!newMessage.trim()}>
+                        <button type="submit" className="btn-send" disabled={!newMessage.trim()}>
                             Envoyer
                         </button>
                     </form>
