@@ -7,7 +7,7 @@ import Footer from './components/Layout/Footer.jsx';
 import Formulaire from './components/Formulaire/Formulaire.jsx';
 import Demandes from './components/Invitations/Demandes.jsx';
 import SentInvitations from './components/Invitations/SentInvitations.jsx';
-import InviteModal from './components/Invitations/InviteModal.jsx';
+import InvitePopup from './components/Invitations/InvitePopup.jsx';
 import './App.css';
 import Chat from "./components/Chat/Chat.jsx";
 import { deleteChannel, getUserChannels, leaveChannel } from "./services/api.js";
@@ -18,7 +18,7 @@ const PAGE_STATE = {
     invitations: 'usertarget',
 };
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 6;
 
 function App() {
 
@@ -200,7 +200,14 @@ function App() {
             <Footer />
 
             {inviteChannel && (
-                <InviteModal
+                <DeletePopup
+                    channel={inviteChannel}
+                    onClose={() => setDeleteChanel(null)}
+                />
+            )}
+
+            {inviteChannel && (
+                <InvitePopup
                     channel={inviteChannel}
                     currentUser={user}
                     onClose={() => setInviteChannel(null)}

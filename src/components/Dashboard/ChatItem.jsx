@@ -7,9 +7,6 @@ const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel, onInvite
         <div className="chat-card">
             <div className="card-header">
                 <h3>{channel.title}</h3>
-                <span className="owner">
-                    {isOwner ? '[ Propriétaire ]' : '[ Invité ]'}
-                </span>
             </div>
 
             <p className="description">
