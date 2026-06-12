@@ -1,5 +1,5 @@
 header {
-    width: 1000px;
+    width: 1200px;
     max-width: 100%;
     margin: 0 auto;
 }
@@ -9,7 +9,7 @@ header div{
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    padding: 0 1em 0 1em;
+    padding: 0 1rem 0 1rem;
     background-color: #333;
 }
 
@@ -20,18 +20,18 @@ header h1 {
 nav {
     display: flex;
     justify-content: space-around;
-    padding: 1em 0 1em 0;
+    padding: 1rem 0 1rem 0;
 }
 
 .btn{
     font-family: monospace;
     font-size: 1rem;
-    padding: 0.5em 1em;
+    padding: 0.5rem 1rem;
     border: none;
     cursor: pointer;
     text-align: center;
     text-decoration: none;
-    height: 40px;
+    height: 2rem;
     color: #fff;
     background-color: #333;
 }
@@ -53,12 +53,7 @@ aside {
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
-
-    width: 250px;
-    padding: 10px;
-    height: 100%;
-    margin-right: 10px;
-
+    width: 20rem;
     background-color: #333;
     color: white;
 }
@@ -91,7 +86,7 @@ aside {
 }
 
 footer {
-    width: 1000px;
+    width: 1200px;
     max-width: 100%;
     margin: 10px auto 0 auto;
     padding: 12px;

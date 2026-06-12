@@ -200,13 +200,6 @@ function App() {
             <Footer />
 
             {inviteChannel && (
-                <DeletePopup
-                    channel={inviteChannel}
-                    onClose={() => setDeleteChanel(null)}
-                />
-            )}
-
-            {inviteChannel && (
                 <InvitePopup
                     channel={inviteChannel}
                     currentUser={user}
