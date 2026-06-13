@@ -87,6 +87,13 @@
     border-color: #7F00FF;
 }
 
+.delete-confirm {
+    color: #dddddd;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0 0 6px;
+}
+
 .modal-actions {
     display: flex;
     gap: 8px;

@@ -1,15 +1,12 @@
-import {useEffect, useState} from "react";
-import {deleteChannel} from "../../services/api.js";
+import { useState } from "react";
+import { deleteChannel } from "../../services/api.js";
 
 function DeletePopup({ channel, onClose, setChannels, activeChat, setActiveChat, setRefreshTrigger }) {
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleDelete = async () => {
         setError('');
-        setSuccess('');
 
         if (!channel.id) {
             setError('Aucun channel à supprimer');
@@ -23,10 +20,9 @@ function DeletePopup({ channel, onClose, setChannels, activeChat, setActiveChat,
                 setActiveChat(null);
             }
             setRefreshTrigger(prev => prev + 1);
-            setSuccess('Channel supprimé');
-        }  catch (err) {
+            onClose();
+        } catch (err) {
             setError(err.message);
-        } finally {
             setIsLoading(false);
         }
     };
@@ -38,12 +34,19 @@ function DeletePopup({ channel, onClose, setChannels, activeChat, setActiveChat,
                     <h2>[ Supprimer : {channel.title} ]</h2>
                 </div>
 
-                < div className="modal-body">
+                <div className="modal-body">
                     {error && <div className="error-box">ERREUR : {error}</div>}
-                    {success && <div className="success-box">{success}</div>}
 
-                    <form onSubmit={handleSubmit} className="invite-form">
-                        <button type="submit" className="modal-btn modal-btn-send" disabled={isLoading}>
+                    <p className="delete-confirm">
+                        Voulez vous supprimer {channel.title} ?
+                    </p>
+
+                    <div className="modal-actions">
+                        <button
+                            type="button"
+                            className="modal-btn modal-btn-send"
+                            onClick={handleDelete}
+                            disabled={isLoading}>
                             {isLoading ? '[ Suprression... ]' : '[ Supprimer ]'}
                         </button>
                         <button
