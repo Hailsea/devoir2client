@@ -10,7 +10,7 @@ import SentInvitations from './components/Invitations/SentInvitations.jsx';
 import InvitePopup from './components/Invitations/InvitePopup.jsx';
 import './App.css';
 import Chat from "./components/Chat/Chat.jsx";
-import { deleteChannel, getUserChannels, leaveChannel } from "./services/api.js";
+import { getUserChannels, leaveChannel } from "./services/api.js";
 import DeletePopup from "./components/Dashboard/DeletePopup.jsx";
 
 const PAGE_STATE = {
@@ -127,7 +127,6 @@ function App() {
                             <Dashboard
                                 filteredChannels={channels}
                                 currentUser={user}
-                                viewType="all"
                                 onEnterChat={setActiveChat}
                                 onDeleteChannel={setDeleteChannel}
                                 onInvite={setInviteChannel}
@@ -142,7 +141,6 @@ function App() {
                             <Dashboard
                                 filteredChannels={channels}
                                 currentUser={user}
-                                viewType="owner"
                                 onEnterChat={setActiveChat}
                                 onDeleteChannel={setDeleteChannel}
                                 onInvite={setInviteChannel}
@@ -156,7 +154,6 @@ function App() {
                             <Dashboard
                                 filteredChannels={channels}
                                 currentUser={user}
-                                viewType="guest"
                                 onEnterChat={setActiveChat}
                                 onLeave={handleLeaveChannel}
                                 page={page}
