@@ -87,18 +87,16 @@
     border-color: #7F00FF;
 }
 
-.delete-confirm {
-    color: #dddddd;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    margin: 0 0 6px;
-}
-
 .modal-actions {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
     margin-top: 10px;
+}
+
+.modal-actions-column {
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .modal-btn {

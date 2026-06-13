@@ -31,17 +31,13 @@ function DeletePopup({ channel, onClose, setChannels, activeChat, setActiveChat,
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-window" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2>[ Supprimer : {channel.title} ]</h2>
+                    <h2>Voulez vous supprimer {channel.title} ?</h2>
                 </div>
 
                 <div className="modal-body">
                     {error && <div className="error-box">ERREUR : {error}</div>}
 
-                    <p className="delete-confirm">
-                        Voulez vous supprimer {channel.title} ?
-                    </p>
-
-                    <div className="modal-actions">
+                    <div className="modal-actions modal-actions-column">
                         <button
                             type="button"
                             className="modal-btn modal-btn-send"
@@ -56,10 +52,11 @@ function DeletePopup({ channel, onClose, setChannels, activeChat, setActiveChat,
                             disabled={isLoading}>
                             [ Fermer ]
                         </button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
+
 export default DeletePopup;
