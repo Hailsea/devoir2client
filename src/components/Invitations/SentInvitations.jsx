@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { getSentInvitations, deleteInvitation } from '../../services/api';
 import { invitationStateLabel } from '../../utils/invitationState';
 import { formatDate } from '../../utils/formatDate';
+import ConfirmPopup from '../Dashboard/ConfirmPopup.jsx';
 import './Invitations.css';
 
 function SentInvitations({ currentUser }) {
     const [invitations, setInvitations] = useState([]);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [pendingDelete, setPendingDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         if (!currentUser?.id) return;
@@ -29,20 +32,20 @@ function SentInvitations({ currentUser }) {
 
     const invitationKey = (inv) => `${inv.idUser}-${inv.idUserTarget}-${inv.idChannel}`;
 
-    const handleDelete = async (inv) => {
-        const accepted = inv.stateInitation === true;
-        const message = accepted
-            ? "Cette invitation est acceptée : la supprimer retirera l'utilisateur du salon. Continuer ?"
-            : "Supprimer cette invitation ?";
-        if (!window.confirm(message)) return;
+    const handleConfirmDelete = async () => {
+        if (!pendingDelete) return;
 
+        setIsDeleting(true);
         try {
-            await deleteInvitation(inv.idUser, inv.idUserTarget, inv.idChannel);
+            await deleteInvitation(pendingDelete.idUser, pendingDelete.idUserTarget, pendingDelete.idChannel);
             setInvitations((prev) =>
-                prev.filter((i) => invitationKey(i) !== invitationKey(inv))
+                prev.filter((i) => invitationKey(i) !== invitationKey(pendingDelete))
             );
         } catch (err) {
             setError(err.message);
+        } finally {
+            setIsDeleting(false);
+            setPendingDelete(null);
         }
     };
 
@@ -81,7 +84,7 @@ function SentInvitations({ currentUser }) {
                                     <button
                                         className="button btn-refuse"
                                         title="Supprimer l'invitation"
-                                        onClick={() => handleDelete(inv)}>
+                                        onClick={() => setPendingDelete(inv)}>
                                         [Supprimer]
                                     </button>
                                 </div>
@@ -89,6 +92,15 @@ function SentInvitations({ currentUser }) {
                         </div>
                     ))}
                 </div>
+            )}
+
+            {pendingDelete && (
+                <ConfirmPopup
+                    title="Supprimer l'invitation ?"
+                    onConfirm={handleConfirmDelete}
+                    onClose={() => setPendingDelete(null)}
+                    isLoading={isDeleting}
+                />
             )}
         </>
     );

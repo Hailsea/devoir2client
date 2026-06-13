@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import { useState } from "react";
 import "./Formulaire.css";
 import { createChannel, updateChannel } from "../../services/api";
 
