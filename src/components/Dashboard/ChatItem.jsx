@@ -20,6 +20,8 @@ const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel, onInvite
 
             <div className="actions">
                 <div className="button-group">
+
+                    <button className="button" title="Rejoindre le chat" onClick={() => onEnterChat(channel)}>[Entrer]</button>
                     {isOwner && (
                         <>
                             {onEdit && (
@@ -38,7 +40,7 @@ const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel, onInvite
                             )}
                             <button className="button"
                                     title="Supprimer"
-                                    onClick={() => onDeleteChannel(channel.id)}>
+                                    onClick={() => onDeleteChannel(channel)}>
                                 [Supprimer]
                             </button>
                         </>
@@ -50,7 +52,6 @@ const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel, onInvite
                             [Quitter]
                         </button>
                     )}
-                    <button className="button" title="Rejoindre le chat" onClick={() => onEnterChat(channel)}>[Entrer]</button>
                 </div>
             </div>
         </div>
