@@ -41,6 +41,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         if (!newMessage.trim()) return;
 
         const messageData = {
+            channel_id: channel.id,
             user: `${currentUser.firstname} ${currentUser.lastname}`,
             message: newMessage,
         };
@@ -48,6 +49,8 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
             wsRef.current.send(JSON.stringify(messageData));
             setNewMessage("");
+            console.log("MESSAGE")
+            console.log(messageData);
         } else {
             console.warn("Le WebSocket n'est pas prêt ou est déconnecté.");
         }
@@ -69,7 +72,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                     <div className="chat-messages-area">
                         {messages.length === 0 ? (
                             <div className="chat-empty-state">
-                                aucun message
+                                Aucun message
                             </div>
                         ) : (
                             messages.map((msg, index) => (
