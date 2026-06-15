@@ -67,7 +67,7 @@ function Login({onLogin}) {
                         </button>
 
                         <div className="login-footer">
-                            <a href="/resetPassword" className="forgot-link">Mot de passe oublié</a>
+                            <a href="http://localhost:8080/resetPassword" className="forgot-link">Mot de passe oublié</a>
                         </div>
                     </form>
                 </div>

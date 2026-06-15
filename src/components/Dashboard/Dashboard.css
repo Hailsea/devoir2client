@@ -83,28 +83,6 @@
     background-color: #b6b6b6;
 }
 
-.btn-update, .btn-classic {
-    background-color: #dddddd;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-}
-
-.btn-add {
-    background-color: #dddddd;
-    padding: 4px 12px;
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-    align-items: center;
-    font-size: 12px;
-    font-weight: bold;
-    color: #000000;
-}
-
 .muted {
     color: #888888;
     font-style: italic;

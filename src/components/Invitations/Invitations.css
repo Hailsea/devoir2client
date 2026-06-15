@@ -15,17 +15,15 @@
 }
 
 .error-box {
-    background-color: #5a2a2a;
-    color: #ffd5d5;
-    border: 1px solid #a55;
+    background-color: red;
+    color: white;
     padding: 5px;
     margin-bottom: 12px;
 }
 
 .success-box {
-    background-color: #2a5a2a;
-    color: #d5ffd5;
-    border: 1px solid #5a5;
+    background-color: green;
+    color: white;
     padding: 5px;
     margin-bottom: 12px;
 }
@@ -89,11 +87,23 @@
     border-color: #7F00FF;
 }
 
+.modal-message {
+    color: #dddddd;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0 0 6px;
+}
+
 .modal-actions {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
     margin-top: 10px;
+}
+
+.modal-actions-column {
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .modal-btn {

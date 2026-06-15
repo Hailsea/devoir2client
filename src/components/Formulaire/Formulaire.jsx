@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import { useState } from "react";
 import "./Formulaire.css";
 import { createChannel, updateChannel } from "../../services/api";
 
@@ -13,8 +13,12 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated, channelToEd
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [dateMin, setDateMin] = useState('');
-    const [dateMax, setDateMax] = useState('');
+
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const dateMin = `${today.getFullYear()}-${month}-${day}`;
+    const dateMax = `${today.getFullYear() + 1}-${month}-${day}`;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -59,17 +63,6 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated, channelToEd
             setIsLoading(false);
         }
     };
-
-    useEffect(() => {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const yearLater = year + 1;
-
-        setDateMin(`${year}-${month}-${day}`);
-        setDateMax(`${yearLater}-${month}-${day}`);
-    }, []);
 
     return (
         <div className="form-wrapper">

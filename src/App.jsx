@@ -10,7 +10,8 @@ import SentInvitations from './components/Invitations/SentInvitations.jsx';
 import InvitePopup from './components/Invitations/InvitePopup.jsx';
 import './App.css';
 import Chat from "./components/Chat/Chat.jsx";
-import { deleteChannel, getUserChannels, leaveChannel } from "./services/api.js";
+import { getUserChannels, leaveChannel } from "./services/api.js";
+import DeletePopup from "./components/Dashboard/DeletePopup.jsx";
 
 const PAGE_STATE = {
     home: 'all',
@@ -30,6 +31,7 @@ function App() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [inviteChannel, setInviteChannel] = useState(null);
     const [editingChannel, setEditingChannel] = useState(null);
+    const [deleteChannel, setDeleteChannel] = useState(null);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
 
@@ -58,19 +60,6 @@ function App() {
         setActiveChat(null);
         setPage(0);
         setCurrentPage('login');
-    };
-
-    const handleDeleteChannel = async (idChannel) => {
-       try {
-           await deleteChannel(idChannel);
-           setChannels(prev => prev.filter(c => c.id !== idChannel));
-           if (activeChat?.id === idChannel) {
-               setActiveChat(null);
-           }
-           setRefreshTrigger(prev => prev + 1);
-        } catch (err) {
-            alert(err.message);
-        }
     };
 
     const handleLeaveChannel = async (idChannel) => {
@@ -138,9 +127,8 @@ function App() {
                             <Dashboard
                                 filteredChannels={channels}
                                 currentUser={user}
-                                viewType="all"
                                 onEnterChat={setActiveChat}
-                                onDeleteChannel={handleDeleteChannel}
+                                onDeleteChannel={setDeleteChannel}
                                 onInvite={setInviteChannel}
                                 onEdit={handleEditChannel}
                                 onLeave={handleLeaveChannel}
@@ -153,9 +141,8 @@ function App() {
                             <Dashboard
                                 filteredChannels={channels}
                                 currentUser={user}
-                                viewType="owner"
                                 onEnterChat={setActiveChat}
-                                onDeleteChannel={handleDeleteChannel}
+                                onDeleteChannel={setDeleteChannel}
                                 onInvite={setInviteChannel}
                                 onEdit={handleEditChannel}
                                 page={page}
@@ -167,7 +154,6 @@ function App() {
                             <Dashboard
                                 filteredChannels={channels}
                                 currentUser={user}
-                                viewType="guest"
                                 onEnterChat={setActiveChat}
                                 onLeave={handleLeaveChannel}
                                 page={page}
@@ -198,6 +184,18 @@ function App() {
                 </main>
             </div>
             <Footer />
+
+           {deleteChannel && (
+                <DeletePopup
+                    channel={deleteChannel}
+                    onClose={() => setDeleteChannel(null)}
+                    setChannels={setChannels}
+                    activeChat={activeChat}
+                    setActiveChat={setActiveChat}
+                    setRefreshTrigger={setRefreshTrigger}
+
+                />
+            )}
 
             {inviteChannel && (
                 <InvitePopup
