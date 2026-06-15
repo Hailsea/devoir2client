@@ -9,7 +9,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
 
     useEffect(() => {
         const baseWsUrl = import.meta.env.VITE_WS_URL;
-        const wsurl = `${baseWsUrl}/salon?id=${channel.id}`;
+        const wsurl = `${baseWsUrl}/channel?id=${channel.id}`;
         const websocket = new WebSocket(wsurl);
 
         websocket.onopen = () => {
