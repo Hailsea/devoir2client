@@ -1,5 +1,8 @@
+// centralisation des appels API
+// l'url de l'api est dans le .env
 const URL = import.meta.env.VITE_API_URL
 
+// Lit le message d'erreur renvoyé par le serveur
 const extractError = async (response, fallback) => {
     try {
         const data = await response.json();
@@ -9,7 +12,7 @@ const extractError = async (response, fallback) => {
     }
 };
 
-// AUTH
+// --- AUTH ---
 
 export const login = async (email, password) => {
     const response = await fetch(`${URL}/auth/login`, {
@@ -26,13 +29,16 @@ export const login = async (email, password) => {
     return await response.json();
 };
 
-// CHANNEL
+// --- CHANNEL ---
+
+// state : "all" = tous, "owner" = mes salons, "usertarget" = ceux où je suis invité
 export const getUserChannels = async (userId, page, size, state = "all") => {
     const response = await fetch(`${URL}/channels?userId=${userId}&state=${state}&page=${page}&size=${size}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
     });
 
+    // 404 = aucun salon : on renvoie une page vide
     if (response.status === 404) {
         return { content: [], page: 0, totalPages: 0, totalElements: 0 };
     }
@@ -83,6 +89,7 @@ export const deleteChannel = async (idChannel) => {
     return true;
 };
 
+// Retire un membre d'un salon
 export const leaveChannel = async (channelId, userId) => {
     const response = await fetch(`${URL}/channels/${channelId}/members/${userId}`, {
         method: 'DELETE',
@@ -94,8 +101,9 @@ export const leaveChannel = async (channelId, userId) => {
     return true;
 };
 
-// USER
+// --- USER ---
 
+// excludeId : utilisateur a exclure
 export const getUsers = async (excludeId) => {
     const query = excludeId != null ? `?exclude=${excludeId}` : '';
     const response = await fetch(`${URL}/users${query}`, {
@@ -112,8 +120,10 @@ export const getUsers = async (excludeId) => {
     return await response.json();
 };
 
-// INVITATION
+// --- INVITATION ---
+// Clé compose : (idUser, idUserTarget, idChannel) = qui invite, qui est invité, dans quel salon
 
+// Invitations reçues par un user
 export const getInvitations = async (idUserTarget, page, size) => {
     const response = await fetch(`${URL}/invitations?userTarget=${idUserTarget}&page=${page}&size=${size}`, {
         method: 'GET',
@@ -129,6 +139,7 @@ export const getInvitations = async (idUserTarget, page, size) => {
     return await response.json();
 };
 
+// Invitations envoyées par un user
 export const getSentInvitations = async (ownerId, page, size) => {
     const response = await fetch(`${URL}/invitations/sent?owner=${ownerId}&page=${page}&size=${size}`, {
         method: 'GET',

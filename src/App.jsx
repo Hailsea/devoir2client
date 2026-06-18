@@ -13,6 +13,7 @@ import Chat from "./components/Chat/Chat.jsx";
 import { getUserChannels, leaveChannel } from "./services/api.js";
 import DeletePopup from "./components/Dashboard/DeletePopup.jsx";
 
+// Associe chaque page au filtre attendu par l'api
 const PAGE_STATE = {
     home: 'all',
     chats: 'owner',
@@ -26,9 +27,9 @@ function App() {
     const [currentPage, setCurrentPage] = useState('home');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
-    const [activeChat, setActiveChat] = useState(null);
+    const [activeChat, setActiveChat] = useState(null); // salon ouvert en mode discussion
     const [channels, setChannels] = useState([]);
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [refreshTrigger, setRefreshTrigger] = useState(0); // a incrementer pour forcer un rechargement
     const [inviteChannel, setInviteChannel] = useState(null);
     const [editingChannel, setEditingChannel] = useState(null);
     const [deleteChannel, setDeleteChannel] = useState(null);
@@ -53,6 +54,7 @@ function App() {
         setCurrentPage('home');
     };
 
+    // Déconnexion : on remet à zero
     const handleLogout = () => {
         setUser(null)
         setIsAuthenticated(false);
@@ -75,6 +77,7 @@ function App() {
         }
     };
 
+    // Recharge la listes des chats refreshTrigger bouge
     useEffect(() => {
         if (!isAuthenticated || !user?.id) {
             return;
@@ -82,7 +85,7 @@ function App() {
 
         const state = PAGE_STATE[currentPage];
         if (!state) {
-            return;
+            return; // page sans liste de chat
         }
 
         const fetchChannels = async () => {
@@ -91,6 +94,7 @@ function App() {
                 setChannels(data.content);
                 setTotalPages(data.totalPages);
 
+                // Page devenue hors limite
                 if (data.totalPages > 0 && page > data.totalPages - 1) {
                     setPage(data.totalPages - 1);
                 }

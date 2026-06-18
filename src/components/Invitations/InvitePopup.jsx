@@ -9,6 +9,7 @@ function InvitePopup({ channel, currentUser, onClose }) {
     const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    // Recupere la liste des utilisateurs sans soi-meme
     useEffect(() => {
         const fetchUsers = async () => {
             try {

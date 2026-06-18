@@ -1,3 +1,4 @@
+// Invitations recues par un user
 import { useState, useEffect } from 'react';
 import { getInvitations, acceptInvitation, refuseInvitation } from '../../services/api';
 import { formatDate } from '../../utils/formatDate';
@@ -16,6 +17,7 @@ function Demandes({ currentUser, onInvitationAccepted }) {
             setError('');
             try {
                 const data = await getInvitations(currentUser.id, 0, 10); //TODO pagination
+                // On ne garde que les invitations en attente
                 setInvitations(data.content.filter((inv) => inv.stateInitation == null));
             } catch (err) {
                 setError(err.message);
@@ -26,6 +28,7 @@ function Demandes({ currentUser, onInvitationAccepted }) {
         void fetchInvitations();
     }, [currentUser]);
 
+    // Clé compose côté back
     const invitationKey = (inv) => `${inv.idUser}-${inv.idUserTarget}-${inv.idChannel}`;
 
     const removeFromList = (inv) => {
@@ -34,6 +37,7 @@ function Demandes({ currentUser, onInvitationAccepted }) {
         );
     };
 
+    // Accepte l'invitation puis prévient le parent pour rafraîchir les chats
     const handleAccept = async (inv) => {
         try {
             await acceptInvitation(inv.idUser, inv.idUserTarget, inv.idChannel);

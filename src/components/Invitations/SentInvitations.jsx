@@ -1,3 +1,4 @@
+// Invitations envoyees par un user
 import { useState, useEffect } from 'react';
 import { getSentInvitations, deleteInvitation } from '../../services/api';
 import { invitationStateLabel } from '../../utils/invitationState';
@@ -9,7 +10,7 @@ function SentInvitations({ currentUser }) {
     const [invitations, setInvitations] = useState([]);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [pendingDelete, setPendingDelete] = useState(null);
+    const [pendingDelete, setPendingDelete] = useState(null); // invitation en attente de confirmation
     const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
@@ -30,6 +31,7 @@ function SentInvitations({ currentUser }) {
         void fetchSent();
     }, [currentUser]);
 
+    // Clé compose niveau back
     const invitationKey = (inv) => `${inv.idUser}-${inv.idUserTarget}-${inv.idChannel}`;
 
     const handleConfirmDelete = async () => {

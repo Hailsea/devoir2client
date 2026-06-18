@@ -1,5 +1,4 @@
-import './Layout.css';
-import Navbar from './Navbar';
+import Navbar from "./Navbar.jsx";
 
 function Header({ userName, onLogout, currentPage, setCurrentPage }) {
     return (

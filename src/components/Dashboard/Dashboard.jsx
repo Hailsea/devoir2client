@@ -1,4 +1,4 @@
-
+// Affiche la liste des salons
 import ChatTable from './ChatTable';
 import './Dashboard.css';
 
