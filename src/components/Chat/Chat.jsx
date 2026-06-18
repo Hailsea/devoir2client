@@ -4,6 +4,7 @@ import './Chat.css';
 const Chat = ({ channel, currentUser, onLeave }) => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
+    const [closedReason, setClosedReason] = useState(null); // motif renvoyé par le serveur (salon fermé...)
     const wsRef = useRef(null);
     const chatEndRef = useRef(null); // ancre en bas de liste pour l'auto-scroll
 
@@ -21,8 +22,13 @@ const Chat = ({ channel, currentUser, onLeave }) => {
             setMessages((prev) => [...prev, evt.data]);
         };
 
-        websocket.onclose = () => {
+        websocket.onclose = (evt) => {
             console.log('WebSocket is closed');
+            // Le serveur ferme avec un code applicatif (>= 4000) et un motif
+            // quand l'accès est refusé (salon pas encore ouvert / fermé).
+            if (evt.code >= 4000 && evt.reason) {
+                setClosedReason(evt.reason);
+            }
         };
 
         // On stocke la connexion dans le ref (pas de render provoqué)
@@ -73,6 +79,9 @@ const Chat = ({ channel, currentUser, onLeave }) => {
 
             <div className="chat-layout">
                 <div className="chat-main">
+                    {closedReason && (
+                        <div className="chat-closed-banner">{closedReason}</div>
+                    )}
                     <div className="chat-messages-area">
                         {messages.length === 0 ? (
                             <div className="chat-empty-state">
@@ -94,10 +103,11 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                             type="text"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder="Écrivez votre message..."
+                            placeholder={closedReason ? "Salon indisponible" : "Écrivez votre message..."}
+                            disabled={Boolean(closedReason)}
                             autoFocus
                         />
-                        <button type="submit" className="btn-send" disabled={!newMessage.trim()}>
+                        <button type="submit" className="btn-send" disabled={!newMessage.trim() || Boolean(closedReason)}>
                             Envoyer
                         </button>
                     </form>

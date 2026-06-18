@@ -83,6 +83,31 @@
     background-color: #b6b6b6;
 }
 
+.button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.button:disabled:hover {
+    background-color: #dddddd;
+}
+
+.channel-status {
+    font-weight: bold;
+}
+
+.status-open {
+    color: #6ee06e;
+}
+
+.status-upcoming {
+    color: #e0b84a;
+}
+
+.status-closed {
+    color: #d98a8a;
+}
+
 .muted {
     color: #888888;
     font-style: italic;

@@ -4,6 +4,16 @@
     height: 100%;
 }
 
+.chat-closed-banner {
+    background-color: #5a2a2a;
+    color: #ffd6d6;
+    border: 1px solid #d98a8a;
+    padding: 8px 12px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
 .chat-header {
     display: flex;
     justify-content: space-between;
