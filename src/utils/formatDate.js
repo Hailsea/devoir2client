@@ -6,3 +6,9 @@ export const formatDate = (dateString) => {
         hour: '2-digit', minute: '2-digit'
     }).replace(',', '');
 };
+
+// Formate une date ISO en heure "HH:MM".
+export const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+};

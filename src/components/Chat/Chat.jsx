@@ -1,5 +1,6 @@
 import  { useState, useEffect, useRef } from 'react';
 import './Chat.css';
+import { formatTime } from '../../utils/formatDate';
 
 const Chat = ({ channel, currentUser, onLeave }) => {
     const [messages, setMessages] = useState([]);
@@ -20,17 +21,16 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         };
 
         websocket.onmessage = (evt) => {
-            console.log("evt.data");
-            console.log(evt.data);
-            console.log("/evt.data");
-            setMessages((prev) => [...prev, JSON.parse(evt.data)]);
+            const data = JSON.parse(evt.data);
+            data.time = new Date().toISOString();
+            setMessages((prev) => [...prev, data]);
         };
 
         websocket.onclose = (event) => {
             console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
         };
 
-        // On stocke la connexion dans le ref (pas de render provoqué)
+        // On stocke la connexion dans le ref
         wsRef.current = websocket;
 
         // Ferme la connexion
@@ -125,13 +125,14 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                                 Aucun message
                             </div>
                         ) : (
-                            messages.map((msg, index) => (
-                                <div key={index} className="message-item">
-                                    {/* affichage auteur */}
+                            messages.map((msg, index) => {
+                                const isMine = msg["f_name"] === currentUser.firstname && msg["l_name"] === currentUser.lastname;
+                                return (
+                                <div key={index} className={`message-item ${isMine ? 'mine' : ''}`}>
+
                                     <span className="message-author">{msg["l_name"]} {msg["f_name"]}</span>
                                     <div className="files-box">{msg.content}</div>
 
-                                    {/* parcours des fichiers */}
                                     {msg["files"] && msg["files"].length > 0 && (
                                         <div className="message-attachments">
                                             {msg["files"].map((file, fileIndex) => {
@@ -173,8 +174,10 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                                     )}
 
                                     <span className="message-text">{msg["message"]}</span>
+                                    {msg["time"] && <span className="message-time">{formatTime(msg["time"])}</span>}
                                 </div>
-                            ))
+                                );
+                            })
                         )}
                         <div ref={chatEndRef} />
                     </div>
@@ -198,5 +201,4 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         </div>
     );
 };
-
 export default Chat;
