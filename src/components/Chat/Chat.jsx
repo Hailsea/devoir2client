@@ -20,12 +20,14 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         };
 
         websocket.onmessage = (evt) => {
+            console.log("evt.data");
             console.log(evt.data);
+            console.log("/evt.data");
             setMessages((prev) => [...prev, JSON.parse(evt.data)]);
         };
 
-        websocket.onclose = () => {
-            console.log('WebSocket is closed');
+        websocket.onclose = (event) => {
+            console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
         };
 
         // On stocke la connexion dans le ref (pas de render provoqué)
@@ -67,7 +69,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
             });
             const processedFiles = await Promise.all(filePromises);
             // Append new files to any files already staged for this message
-            setNewFiles([processedFiles]);
+            setNewFiles(processedFiles);
         } catch (error) {
             console.error("Error reading files:", error);
         } finally {
@@ -79,8 +81,9 @@ const Chat = ({ channel, currentUser, onLeave }) => {
 
     const handleNewMessage = (e) => {
         e.preventDefault();
+        console.log("newFiles");
+        console.log(newFiles);
         if (!newMessage.trim()) return;
-
         const messageData = {
             channel_id: channel.id,
             user_id: currentUser.id,
@@ -124,10 +127,11 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                         ) : (
                             messages.map((msg, index) => (
                                 <div key={index} className="message-item">
+                                    {/* affichage auteur */}
                                     <span className="message-author">{msg["l_name"]} {msg["f_name"]}</span>
                                     <div className="files-box">{msg.content}</div>
 
-                                    {/* --- Début de la partie msg["files"] intégrée --- */}
+                                    {/* parcours des fichiers */}
                                     {msg["files"] && msg["files"].length > 0 && (
                                         <div className="message-attachments">
                                             {msg["files"].map((file, fileIndex) => {
@@ -167,7 +171,6 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                                             })}
                                         </div>
                                     )}
-                                    {/* --- Fin de la partie msg["files"] --- */}
 
                                     <span className="message-text">{msg["message"]}</span>
                                 </div>
@@ -178,7 +181,6 @@ const Chat = ({ channel, currentUser, onLeave }) => {
 
                     <form className="chat-input-form" onSubmit={handleNewMessage}>
                         <input type="file" name="files" id="files" onChange={handleFileChange} multiple/>
-                        <button type="button" name="files_clear" onChange={()=>setNewFiles([])}/>
                         <span className="input-prefix">&gt;</span>
                         <input
                             type="text"
