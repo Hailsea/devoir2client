@@ -1,7 +1,9 @@
+// Formulaire de création ou de modification d'un salon
 import { useState } from "react";
 import "./Formulaire.css";
 import { createChannel, updateChannel } from "../../services/api";
 
+// Tronque une date ISO au format attendu par <input type="datetime-local">.
 const toInputDateTime = (value) => (value ? value.slice(0, 16) : '');
 
 function Formulaire({ currentUser, setCurrentPage, onChannelCreated, channelToEdit }) {
@@ -14,6 +16,7 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated, channelToEd
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
+    // Bornes du sélecteur de date
     const today = new Date();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
@@ -25,6 +28,7 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated, channelToEd
         setError('');
         setSuccess(false);
 
+        // La fermeture doit être apres l'ouverture
         const start = new Date(startChannel);
         const end = new Date(endChannel);
 
@@ -50,10 +54,12 @@ function Formulaire({ currentUser, setCurrentPage, onChannelCreated, channelToEd
             }
             setSuccess(true);
 
+            // Prévient le parent pour qu'il rafraichisse la liste des chats
             if (onChannelCreated) {
                 onChannelCreated();
             }
 
+            // Laisse voir le message de succes, puis redirige vers la liste des chats
             setTimeout(() => {
                 setCurrentPage('home');
             }, 1500);

@@ -1,7 +1,8 @@
+// Grille de cartes des chats + pagination
 import ChatItem from './ChatItem';
 
 const ChatTable = ({ filteredChannels, currentUser, onEnterChat, onDeleteChannel, onInvite, onEdit, onLeave, page = 0, totalPages = 1, onPageChange }) => {
-    const pageCount = Math.max(totalPages, 1);
+    const pageCount = Math.max(totalPages, 1); // au moins 1 page
     const isFirst = page <= 0;
     const isLast = page >= pageCount - 1;
 

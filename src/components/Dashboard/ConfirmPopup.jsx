@@ -6,6 +6,8 @@ function ConfirmPopup({
     isLoading = false,
 }) {
     return (
+        // Clic sur le fond = fermeture
+        // stopPropagation empeche un clic dans la fenetre de la fermer
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-window" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">

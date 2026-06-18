@@ -7,8 +7,9 @@ const Chat = ({ channel, currentUser, onLeave }) => {
     const [newMessage, setNewMessage] = useState("");
     const [fileLoading, setFileLoading] = useState(false);
     const wsRef = useRef(null);
-    const chatEndRef = useRef(null);
+    const chatEndRef = useRef(null); // ancre en bas de liste pour l'auto-scroll
 
+    // Ouvre la connexion WebSocket
     useEffect(() => {
         const baseWsUrl = import.meta.env.VITE_WS_URL;
         const wsurl = `${baseWsUrl}/channel?channel_id=${channel.id}&user_id=${currentUser.id}`;
@@ -30,11 +31,13 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         // On stocke la connexion dans le ref (pas de render provoqué)
         wsRef.current = websocket;
 
+        // Ferme la connexion
         return () => {
             websocket.close();
         };
     }, [channel.id]);
 
+    // Auto-scroll vers le bas a chaque nouveau message
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
@@ -83,6 +86,8 @@ const Chat = ({ channel, currentUser, onLeave }) => {
             message: newMessage,
             files: newFiles
         };
+
+        // on n'envoie que si la connexion est ouverte
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
             wsRef.current.send(JSON.stringify(messageData));
             console.log("MESSAGE")

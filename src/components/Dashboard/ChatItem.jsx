@@ -1,3 +1,5 @@
+// Carte d'un chat
+// Les actions dépendent du rôle le propriétaire peut modifier/inviter/supprimer, les autres membres peuvent seulement quitter
 import { formatDate } from '../../utils/formatDate';
 
 const ChatItem = ({ channel, currentUser, onEnterChat, onDeleteChannel, onInvite, onEdit, onLeave }) => {

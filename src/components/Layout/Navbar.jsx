@@ -1,4 +1,5 @@
 function Navbar({ currentPage, setCurrentPage }) {
+    // Toutes les pages on un id qui correspond a celui sur App
     const navButton = [
         { id: 'home', label: 'Accueil' },
         { id: 'planifier', label: 'Planifier' },

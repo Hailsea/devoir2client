@@ -1,3 +1,4 @@
+// Logique de suppression d'un salon
 import { useState } from "react";
 import { deleteChannel } from "../../services/api.js";
 import ConfirmPopup from "./ConfirmPopup.jsx";
@@ -18,6 +19,8 @@ function DeletePopup({ channel, onClose, setChannels, activeChat, setActiveChat,
         try {
             await deleteChannel(channel.id);
             setChannels(prev => prev.filter(c => c.id !== channel.id));
+            // Si le salon supprimé etait ouvert en chat on ferme la discussion
+            // Normalement ce n'est pas un cas qui arrive mais on sait jamais
             if (activeChat?.id === channel.id) {
                 setActiveChat(null);
             }
