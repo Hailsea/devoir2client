@@ -20,13 +20,14 @@ export const login = async (email, password) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({email, password }),
     });
-
     if (!response.ok) {
         throw new Error("Email ou mot de passe incorrect");
     }
-    return await response.json();
+    const temp = await response.json();
+    console.log(temp);
+    return temp;
 };
 
 // --- CHANNEL ---
