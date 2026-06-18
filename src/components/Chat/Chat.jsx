@@ -20,12 +20,14 @@ const Chat = ({ channel, currentUser, onLeave }) => {
         };
 
         websocket.onmessage = (evt) => {
+            console.log("evt.data");
             console.log(evt.data);
+            console.log("/evt.data");
             setMessages((prev) => [...prev, JSON.parse(evt.data)]);
         };
 
-        websocket.onclose = () => {
-            console.log('WebSocket is closed');
+        websocket.onclose = (event) => {
+            console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
         };
 
         // On stocke la connexion dans le ref (pas de render provoqué)
@@ -67,7 +69,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
             });
             const processedFiles = await Promise.all(filePromises);
             // Append new files to any files already staged for this message
-            setNewFiles([processedFiles]);
+            setNewFiles(processedFiles);
         } catch (error) {
             console.error("Error reading files:", error);
         } finally {
@@ -79,6 +81,8 @@ const Chat = ({ channel, currentUser, onLeave }) => {
 
     const handleNewMessage = (e) => {
         e.preventDefault();
+        console.log("newFiles");
+        console.log(newFiles);
         if (!newMessage.trim()) return;
         const messageData = {
             channel_id: channel.id,
@@ -123,10 +127,11 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                         ) : (
                             messages.map((msg, index) => (
                                 <div key={index} className="message-item">
+                                    {/* affichage auteur */}
                                     <span>{msg["l_name"]} {msg["f_name"]}</span>
                                     <div className="files-box">{msg.content}</div>
 
-                                    {/* --- Début de la partie msg["files"] intégrée --- */}
+                                    {/* parcours des fichiers */}
                                     {msg["files"] && msg["files"].length > 0 && (
                                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', margin: '10px 0' }}>
                                             {msg["files"].map((file, fileIndex) => {
@@ -141,7 +146,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                             backgroundColor: '#f9f9f9', overflow: 'hidden'
                                                         }}
-                                                    >
+                                                    > {/* affichage fichier si c'est une image */}
                                                         {isImage ? (
                                                             <>
                                                                 <img
@@ -149,22 +154,10 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                                                                     alt={file.name}
                                                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                                 />
-                                                                <button
-                                                                    onClick={() => setNewFiles(prev => prev.filter((_, i) => i !== fileIndex))}
-                                                                    style={{
-                                                                        position: 'absolute', top: '2px', right: '2px', backgroundColor: 'rgba(0,0,0,0.6)',
-                                                                        color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px',
-                                                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px'
-                                                                    }}
-                                                                >
-                                                                </button>
                                                             </>
                                                         ) : (
-                                                            <div
-                                                                onClick={() => setNewFiles(prev => prev.filter((_, i) => i !== fileIndex))}
-                                                                style={{ cursor: 'pointer', textAlign: 'center', color: '#666', padding: '4px' }}
-                                                                title="Cliquer pour supprimer"
-                                                            >
+                                                            <div>
+                                                                {/* logo filler sinon */}
                                                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                                                     <polyline points="14 2 14 8 20 8"></polyline>
@@ -179,7 +172,6 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                                             })}
                                         </div>
                                     )}
-                                    {/* --- Fin de la partie msg["files"] --- */}
 
                                     <span>{msg["message"]}</span>
                                 </div>
