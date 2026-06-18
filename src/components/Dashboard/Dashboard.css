@@ -108,6 +108,13 @@
     color: #d98a8a;
 }
 
+/* Message d'erreur affiché dans une carte (ex : salon fermé au clic sur Entrer) */
+.card-error {
+    color: #d98a8a;
+    font-size: 0.8rem;
+    margin: 4px 0 0;
+}
+
 .muted {
     color: #888888;
     font-style: italic;

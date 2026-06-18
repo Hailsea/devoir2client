@@ -5,7 +5,6 @@ const Chat = ({ channel, currentUser, onLeave }) => {
     const [messages, setMessages] = useState([]);
     const [newFiles, setNewFiles] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-    const [closedReason, setClosedReason] = useState(null); // motif renvoyé par le serveur (salon fermé...)
     const [fileLoading, setFileLoading] = useState(false);
     const wsRef = useRef(null);
     const chatEndRef = useRef(null); // ancre en bas de liste pour l'auto-scroll
@@ -25,13 +24,8 @@ const Chat = ({ channel, currentUser, onLeave }) => {
             setMessages((prev) => [...prev, JSON.parse(evt.data)]);
         };
 
-        websocket.onclose = (evt) => {
+        websocket.onclose = () => {
             console.log('WebSocket is closed');
-            // Le serveur ferme avec un code applicatif (>= 4000) et un motif
-            // quand l'accès est refusé (salon pas encore ouvert / fermé).
-            if (evt.code >= 4000 && evt.reason) {
-                setClosedReason(evt.reason);
-            }
         };
 
         // On stocke la connexion dans le ref (pas de render provoqué)
@@ -122,9 +116,6 @@ const Chat = ({ channel, currentUser, onLeave }) => {
 
             <div className="chat-layout">
                 <div className="chat-main">
-                    {closedReason && (
-                        <div className="chat-closed-banner">{closedReason}</div>
-                    )}
                     <div className="chat-messages-area">
                         {messages.length === 0 ? (
                             <div className="chat-empty-state">
@@ -133,55 +124,42 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                         ) : (
                             messages.map((msg, index) => (
                                 <div key={index} className="message-item">
-                                    <span>{msg["l_name"]} {msg["f_name"]}</span>
+                                    <span className="message-author">{msg["l_name"]} {msg["f_name"]}</span>
                                     <div className="files-box">{msg.content}</div>
 
                                     {/* --- Début de la partie msg["files"] intégrée --- */}
                                     {msg["files"] && msg["files"].length > 0 && (
-                                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', margin: '10px 0' }}>
+                                        <div className="message-attachments">
                                             {msg["files"].map((file, fileIndex) => {
                                                 const isImage = file.type && file.type.startsWith('image/');
 
                                                 return (
-                                                    <div
-                                                        key={fileIndex}
-                                                        style={{
-                                                            position: 'relative', width: '80px', height: '80px',
-                                                            border: '1px solid #ccc', borderRadius: '8px',
-                                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                            backgroundColor: '#f9f9f9', overflow: 'hidden'
-                                                        }}
-                                                    >
+                                                    <div key={fileIndex} className="attachment-thumb">
                                                         {isImage ? (
                                                             <>
                                                                 <img
                                                                     src={`data:${file.type};base64,${file.data}`}
                                                                     alt={file.name}
-                                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                    className="attachment-image"
                                                                 />
                                                                 <button
+                                                                    type="button"
+                                                                    className="attachment-remove"
+                                                                    title="Retirer"
                                                                     onClick={() => setNewFiles(prev => prev.filter((_, i) => i !== fileIndex))}
-                                                                    style={{
-                                                                        position: 'absolute', top: '2px', right: '2px', backgroundColor: 'rgba(0,0,0,0.6)',
-                                                                        color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px',
-                                                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px'
-                                                                    }}
-                                                                >
-                                                                </button>
+                                                                >×</button>
                                                             </>
                                                         ) : (
                                                             <div
+                                                                className="attachment-file"
                                                                 onClick={() => setNewFiles(prev => prev.filter((_, i) => i !== fileIndex))}
-                                                                style={{ cursor: 'pointer', textAlign: 'center', color: '#666', padding: '4px' }}
                                                                 title="Cliquer pour supprimer"
                                                             >
                                                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                                                     <polyline points="14 2 14 8 20 8"></polyline>
                                                                 </svg>
-                                                                <div style={{ fontSize: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '70px' }}>
-                                                                    {file.name}
-                                                                </div>
+                                                                <div className="attachment-name">{file.name}</div>
                                                             </div>
                                                         )}
                                                     </div>
@@ -191,7 +169,7 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                                     )}
                                     {/* --- Fin de la partie msg["files"] --- */}
 
-                                    <span>{msg["message"]}</span>
+                                    <span className="message-text">{msg["message"]}</span>
                                 </div>
                             ))
                         )}
@@ -206,11 +184,10 @@ const Chat = ({ channel, currentUser, onLeave }) => {
                             type="text"
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            placeholder={closedReason ? "Salon indisponible" : "Écrivez votre message..."}
-                            disabled={Boolean(closedReason)}
+                            placeholder="Écrivez votre message..."
                             autoFocus
                         />
-                        <button type="submit" className="btn-send" disabled={!newMessage.trim() || fileLoading || Boolean(closedReason)}>
+                        <button type="submit" className="btn-send" disabled={!newMessage.trim() || fileLoading}>
                             Envoyer
                         </button>
                     </form>
